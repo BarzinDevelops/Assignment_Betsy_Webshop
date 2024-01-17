@@ -10,8 +10,7 @@ from random import randint
 #------------------- End of imports -------------------
 
 def search(term):
-    """
-    
+    """   
         Search for products based on a term in the name or description.
 
         Parameters:
@@ -20,45 +19,139 @@ def search(term):
         Returns:
         - None
     """
+    print(f"\n\n-------- Result of search() function ----------\n")
     # Implement search functionality
     term_lower = term.lower()
     results = (
         Product.select() # select query in peewee
-        # selects rows where column 'name' or 'description' -> contains value that contains whatever 'term_lower' is.
+        # selects rows where column 'name' or 'description' -> contains value that matches whatever 'term_lower' is.
         .where((Product.name ** f"%{term_lower}%") | (Product.description ** f"%{term_lower}%"))
     )
     
-    print(f"Search results for term '{term}':")
-    print(f"results =>\n{results}")
-    
     for result in results:
-        print(f"result: {result}\n==========\n\n")
         print(f"Product: {result.name}, Description: {result.description}")
-
+    
+    print()
+    print(f"=="*30)
+    
 def list_user_products(user_id):
-    # TODO: Implement listing user products
-    pass
+    """   
+        View the products of a given user.
+
+        Parameters:
+        - user_id (int): Id of the given user.
+
+        Returns:
+        - None
+    """
+    print(f"\n-------- Result of list_user_products() function ----------\n")
+    user = User.get_or_none(User.id == user_id)
+    if user and user is not None:
+        products = user.products
+        print(f"Products owned by {user.name}:")
+        for product in products:
+            print(f"Product: {product.name}, Description: {product.description}")
+    else:
+        print(f"Can't find any user with this id-nr: {user_id}")
+    
+    print()
+    print(f"=="*30)
 
 def list_products_per_tag(tag_id):
-    # TODO: Implement listing products per tag
-    pass
+    """   
+        View all products for a given tag.
+
+        Parameters:
+        - tag_id (int): Id of the given tag.
+
+        Returns:
+        - None
+    """
+    print(f"\n-------- Result of list_products_per_tag() function ----------\n")
+    tag = Tag.get_or_none(Tag.id == tag_id)
+    if tag_id and tag is not None:
+        products = tag.products
+        print(f"Products under tag '{tag.name}':\n")
+        for product in products:
+            print(f" - Product name: {product.name}, Description: {product.description}")
+    else:
+        print(f"Can't find any tag with this tag-id: {tag_id}")
+    
+    print()
+    print(f"=="*30)
 
 def add_product_to_catalog(user_id, product):
-    # TODO: Implement adding a product to a user
-    pass
+    """   
+        Add a product to a user.
+        
+        Parameters:
+        - user_id (int): Id of the given user.
+        - product (dict): Containing columns as keys and their values.
+        
+        Returns:
+        - None
+    """
+    print(f"\n-------- Result of add_product_to_catalog() function ----------\n")
+    user = User.get_or_none(User.id == user_id)
+    if user and user is not None:
+        if product and product is not {}:
+            new_product, is_created = Product.get_or_create(
+                name=product['name'],
+                description=product['description'],
+                price=product['price'],
+                quantity=product['quantity'],
+                owner=user,
+                tags=product['tags']
+            , defaults=product)
+            
+            if is_created:
+                print(f"This product: {new_product.name} has been added to the database successfullly.")
+            else:
+                print(f"This product: '{new_product.name}', was already in the database!")
+        else:
+            print(f"Can't find any product for: {product}.")
+    else:
+        print(f"Can't find any user with this id-nr: {user_id}")
+    
+    print()
+    print(f"=="*30)
 
-def update_stock(product_id, new_quantity):
-    # TODO: Implement updating stock quantity of a product
-    pass
+def update_stock(product_id:int, new_quantity:int): 
+    """
+        Update the stock quantity of a product.
+
+        Parameters:
+        - product_id (int): The ID of the product to update.
+        - new_quantity (int): The new quantity to set.
+
+        Returns:
+        - None
+    """
+    print(f"\n-------- Result of update_stock() function ----------\n")
+    product = Product.get_or_none(Product.id == product_id)
+    if product and product is not None:
+        product.quantity = new_quantity
+        product.save()
+        print(f"Stock quantity for product '{product.name}' updated to {new_quantity}.")
+    else:
+        print(f"Can't find any product with this id: {product_id}")
+    
+    print()
+    print(f"=="*30)
 
 def purchase_product(product_id, buyer_id, quantity):
-    # TODO: Implement handling a purchase
-    pass
+    print(f"\n-------- Result of purchase_product() function ----------\n")
+    
+    
+    print()
+    print(f"=="*30)
 
 def remove_product(product_id):
-    # TODO: Implement removing a product from a user
-    pass
-
+    print(f"\n-------- Result of remove_product() function ----------\n")
+    
+    
+    print()
+    print(f"=="*30)
 
 def populate_test_database():
    # Create users
@@ -119,17 +212,65 @@ def populate_test_database():
         ]
     transactions = [Transaction.get_or_create(buyer=data["buyer"], product=data["product"], defaults=data)[0] for data in transaction_data]    
 
+# this is my own function for getting all products etc...
+def get_products(prod_id):
+    print(f"\n-------- Result of get_products() function ----------\n")
+    products = (
+        Product.select()
+            .where(Product.id.in_(prod_id))
+    )
+    
+    for product in products:
+        print(f"This is info on product whith id: {product.id}\n\n"
+            f"  product name:           {product.name}\n"
+            f"  product description:    {product.description}\n"
+            f"  product price:          {product.price}\n"
+            f"  product quantity:       {product.quantity}"
+        )
+    
+    print()
+    print(f"=="*30)
+    
 def main():
    with db:
        # Create tables if they don't exist
         create_models()
         
         # Create data for testing
-        populate_test_database()
+        # populate_test_database()
         
         # Execute operations
-        search("sweater")     
-    
+        """         
+        # =========== Testing function: search() =============== 
+        search("sweater")   
+        # =========== Testing function: list_user_products() ===============  
+        list_user_products(3)
+        list_user_products(100) # testing with non existing value
+        # =========== Testing function: list_products_per_tag() ===============
+        list_products_per_tag(3)
+        list_products_per_t ag(50) # testing with non existing value
+        # =========== Testing function: add_product_to_catalog() ===============
+        add_product_to_catalog(1, {
+            "name": "New Product",
+            "description": "A fantastic new product",
+            "price": 29.99,
+            "quantity": 10,
+            "tags": 1  # Assuming tag ID 1
+        })
+        # =========== Testing function: update_stock() ===============
+        print(f"Before running -> update_stock():")
+        get_products([11])
+        
+        update_stock(11, 10)
+        
+        print(f"After running -> update_stock():")
+        get_products([11])
+        """
+        
+        # =========== Testing function: purchase_product() ===============
+        
+        
+        
 if __name__ == "__main__":
     main()
     # print(f"This module contains main logic of this application.")
