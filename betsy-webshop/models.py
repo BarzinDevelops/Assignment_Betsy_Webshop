@@ -1,7 +1,12 @@
 #-------------------- ALL IMPORTS --------------------
-from my_database import db
+import helpers
 from peewee import Model, CharField, IntegerField, DecimalField, ForeignKeyField
+from peewee import SqliteDatabase
 #------------------- End of imports -------------------
+
+# creating the database
+database = 'betsy.db'
+db = SqliteDatabase(database)
 
 # Models go here
 
@@ -30,6 +35,7 @@ class Transaction(BaseModel):
     buyer = ForeignKeyField(User, backref='purchases')
     product = ForeignKeyField(Product, backref='purchases')
     quantity = IntegerField()
+
 
 def create_models():
     with db:
