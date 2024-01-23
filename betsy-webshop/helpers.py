@@ -4,6 +4,21 @@ from models import *
 from random import randint
 #------------------- End of imports -------------------
 
+test_product1_to_add = {
+        "name": "Test Product 1",
+        "description": "A fantastic first product to test with.",
+        "price": 129.99,
+        "quantity": 66,
+        "tags": 5
+    }
+test_product2_to_add = {
+        "name": "Test Product 2",
+        "description": "A fantastic Second product to test with.",
+        "price": 34.20,
+        "quantity": 4,
+        "tags": 2
+    }
+
 def populate_test_database():
    # Create users
     user_data = [

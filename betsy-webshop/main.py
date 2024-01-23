@@ -7,137 +7,115 @@ __human_name__ = "Betsy Webshop"
 from helpers import *
 #------------------- End of imports -------------------
 
-def search(term):
+def search(term:str):
     """   
-        Search for products based on a term in the name or description.
+        Search for products based on a term in the name or description and returns 
+        a list of the results.
 
         Parameters:
-        - term (str): The search term.
-
-        Returns:
-        - None
+        - term (str):   The search term (word that could be the name of the product 
+                        or a part of its description).
     """
-    print(f"\n\n-------- Result of search() function ----------\n")
-    # Implement search functionality
     term_lower = term.lower()
     results = (
         Product.select() # select query in peewee
         # selects rows where column 'name' or 'description' -> contains value that matches whatever 'term_lower' is.
         .where((Product.name ** f"%{term_lower}%") | (Product.description ** f"%{term_lower}%"))
     )
+    found_products = []
+    for product in results:
+       found_products.append({
+            "Product ID" : product.id,
+            "Product Name" : product.name,
+            "Product Description" : product.description
+        })
+    return found_products
     
-    for result in results:
-        print(f"Product: {result.name}, Description: {result.description}")
-    
-    print()
-    print(f"=="*30)
-    
-def list_user_products(user_id):
+def list_user_products(user_id:int):
     """   
-        View the products of a given user.
+        Returns the products of a given user.
 
         Parameters:
         - user_id (int): Id of the given user.
-
-        Returns:
-        - None
     """
-    print(f"\n-------- Result of list_user_products() function ----------\n")
-    
-    
     user = User.get_or_none(User.id == user_id)
-
     if user and user is not None:
         products = Product.select().where(Product.owner == user)
-
         if products:
-            print(f"Products owned by {user.name}:")
+            users_products = []
             for product in products:
-                print(f"Product: {product.name}, Description: {product.description}")
+                users_products.append({ 
+                    "Owner Name": product.owner.name,
+                    "Product ID": product.id,
+                    "Product Name": product.name,
+                    "Product Description" : product.description
+                })
+            return users_products
         else:
-            print(f"{user.name} does not own any products.")
+            return (f"{user.name} does not own any products.")
     else:
-        print(f"Can't find any user with this id-nr: {user_id}")
+        return (f"Can't find any user with this id-nr: {user_id}")
 
-    
-    
-    
-    # user = User.get_or_none(User.id == user_id)
-    # products = Product.select().where(Product.owner == user)
-    
-    # if user and user is not None:
-    #     if products and products is not {}:
-    #         products = user.products
-    #         print(f"Products owned by {user.name}:")
-    #         for product in products:
-    #             print(f"Product: {product.name}, Description: {product.description}")
-    #     else:
-    #         print(f"Can't find any products for: {user.name}")
-    # else:
-    #     print(f"Can't find any user with this id-nr: {user_id}")
-    
-    print()
-    print(f"=="*30)
-
-def list_products_per_tag(tag_id):
+def list_products_per_tag(tag_id:int):
     """   
-        View all products for a given tag.
+        Returns all products for a given tag.
 
         Parameters:
         - tag_id (int): Id of the given tag.
-
-        Returns:
-        - None
     """
-    print(f"\n-------- Result of list_products_per_tag() function ----------\n")
     tag = Tag.get_or_none(Tag.id == tag_id)
-    if tag_id and tag is not None:
+    if tag and tag is not None:
         products = tag.products
-        print(f"Products under tag '{tag.name}':\n")
+        matching_products = []
         for product in products:
-            print(f" - Product name: {product.name}, Description: {product.description}")
+            matching_products.append({ 
+                "Tag ID" : tag.id,
+                "Product Name": product.name,
+                "Description": product.description
+            })
+        return matching_products
     else:
-        print(f"Can't find any tag with this tag-id: {tag_id}")
-    
-    print()
-    print(f"=="*30)
+        print()
+        return [{"ERROR" : f"Nothing found for this tag id: {tag_id}"}]
 
-def add_product_to_catalog(user_id, product):
+def add_product_to_catalog(user_id:int, product_to_add:dict):
     """   
         Add a product to a user.
-        
+              
         Parameters:
         - user_id (int): Id of the given user.
         - product (dict): Containing columns as keys and their values.
-        
-        Returns:
-        - None
     """
-    print(f"\n-------- Result of add_product_to_catalog() function ----------\n")
     user = User.get_or_none(User.id == user_id)
-    
     if user and user is not None:
-        if product and product is not {}:
+        if product_to_add and product_to_add is not {}:
             new_product, is_created = Product.get_or_create(
-                name=product['name'],
-                description=product['description'],
-                price=product['price'],
-                quantity=product['quantity'],
+                name=product_to_add['name'],
+                description=product_to_add['description'],
+                price=product_to_add['price'],
+                quantity=product_to_add['quantity'],
                 owner=user,
-                tags=product['tags']
-            , defaults=product)
+                tags=product_to_add['tags']
+            , defaults=product_to_add)
             
             if is_created:
-                print(f"This product: {new_product.name} has been added to the database successfullly.")
-            else:
-                print(f"This product: '{new_product.name}', was already in the database!")
+                added_product = [
+                    {
+                        "Added Product ID" : new_product.id,
+                        "Added Product Name" : new_product.name,
+                        "Added Product With Tag ID" : new_product.tags.id,
+                        "Added Product With Tag Name" : new_product.tags.name,
+                        "Added Product To Owner ID" : new_product.owner.id,
+                        "Added Product To Owner Name" : new_product.owner.name,
+                    }
+                ]
+                return added_product
         else:
-            print(f"Can't find any product for: {product}.")
+            print()
+            return [{"ERROR" : f"The product you gave can't be added!\nIt contains this: {product_to_add}"}]
     else:
-        print(f"Can't find any user with this id-nr: {user_id}")
-    
-    print()
-    print(f"=="*30)
+        print()
+        return [{"ERROR" : f"Can't find any user with this id-nr: {user_id}"}]
 
 def update_stock(product_id:int, new_quantity:int): 
     """
@@ -146,24 +124,33 @@ def update_stock(product_id:int, new_quantity:int):
         Parameters:
         - product_id (int): The ID of the product to update.
         - new_quantity (int): The new quantity to set.
-
-        Returns:
-        - None
     """
-    print(f"\n-------- Result of update_stock() function ----------\n")
     product = Product.get_or_none(Product.id == product_id)
     if product and product is not None:
+        previous_quantity = product.quantity
         product.quantity = new_quantity
         product.save()
-        print(f"Stock quantity for product '{product.name}' updated to {new_quantity}.")
+        updated_result = [
+            {
+                "Product Name" : product.name,
+                "Previous quantity": previous_quantity,
+                "Current quantity": product.quantity
+            }
+        ]
+        return updated_result
     else:
-        print(f"Can't find any product with this id: {product_id}")
-    
-    print()
-    print(f"=="*30)
+        print()
+        return [{"ERROR" : f"Nothing found for this product id: {product_id}"}]
 
 def purchase_product(product_id: int, buyer_id: int, quantity: int):
-    print(f"\n-------- Result of purchase_product() function ----------\n")
+    """
+        Handles a purchase between a buyer and a seller for a given product.
+
+        Parameters:
+        - product_id (int): The ID of the product to retrieve.
+        - buyer_id (int): The ID of user that purchases the product.
+        - quantity (int): The current amount of the product.
+    """
     buyer = User.get_or_none(User.id == buyer_id)
     product = Product.get_or_none(Product.id == product_id)
     
@@ -195,20 +182,22 @@ def purchase_product(product_id: int, buyer_id: int, quantity: int):
     else:
         return (f"Can't find any user with this id: {buyer_id}")
 
-    print()
-    print(f"=="*30)
+def remove_product(product_id:int):
+    """
+    Remove a product from the user.
 
-def remove_product(product_id):
-    print(f"\n-------- Result of remove_product() function ----------\n")
-    
-    
-    print()
-    print(f"=="*30)
+    Parameters:
+    - product_id (int): The ID of the product to remove.
+    """
+    product = Product.get_or_none(Product.id == product_id)
+    if product and product is not None:
+        owner = product.owner
+        product.delete_instance()
+        return (f"Product '{product.name}' is removed from {owner.name}'s catalog.")
+    else:
+        return (f"Can't find any product with this id: {product_id}")
 
-    
 
-# this is my own function for getting all products etc...
-def get_products(prod_id):
     print(f"\n-------- Result of get_products() function ----------\n")
     products = (
         Product.select()
@@ -224,46 +213,59 @@ def get_products(prod_id):
         )
     
     print()
-    print(f"=="*30)
-    
-def main():
-   with db:
-       # Create tables if they don't exist
+    print(f"=="*30)       
+        
+if __name__ == "__main__": 
+    with db:
+        # Create tables if they don't exist
         create_models()
-        
-        # Create data for testing
-        # populate_test_database()
-        
-        # Execute operations
-        """         
-        # =========== Testing function: search() =============== 
-        search("sweater")   
-        # =========== Testing function: list_user_products() ===============  
-        list_user_products(3)
-        list_user_products(100) # testing with non existing value
+    
+    # Create data for testing
+    # populate_test_database()
+    
+    """ Test cases: copy each test case you want from this collection and run it seperately.
+        # =========== Testing function: search() ===============   
+        print("\n"+"=="*50+"\n")
+        [print(f"{property}: {value}") for item in search("sweater") for property, value in item.items()]
+        print("\n"+"=="*50+"\n") 
+        # =========== Testing function: list_user_products() =============== 
+        print("\n"+"=="*50+"\n")
+        [print(f"{property}: {value}") for item in list_user_products(1) for property, value in item.items()]
+        [print(f"{property}: {value}") for item in list_user_products(31) for property, value in item.items()] # testing with non existing value
+        print("\n"+"=="*50+"\n")
         # =========== Testing function: list_products_per_tag() ===============
-        list_products_per_tag(3)
-        list_products_per_t ag(50) # testing with non existing value
+        prod1_dict = helpers.test_product1_to_add
+        prod2_dict = helpers.test_product2_to_add
+        print("\n"+"=="*50+"\n")
+        [print(f"{property}: {value}") for item in list_products_per_tag(3) for property, value in item.items()]
+        [print(f"{property}: {value}") for item in list_products_per_tag(50) for property, value in item.items()]
+        print("\n"+"=="*50+"\n")
         # =========== Testing function: add_product_to_catalog() ===============
-        add_product_to_catalog(1, {
+        print("\n"+"=="*50+"\n")
+        add_product_to_catalog(2, {
             "name": "New Product",
             "description": "A fantastic new product",
             "price": 29.99,
             "quantity": 10,
             "tags": 1  # Assuming tag ID 1
         })
+        print("\n"+"=="*50+"\n")
         # =========== Testing function: update_stock() ===============
-        print(f"Before running -> update_stock():")
-        get_products([11])
-        update_stock(11, 10)
-        print(f"After running -> update_stock():")
-        get_products([11])
+        print("\n"+"=="*50+"\n")
+        [print(f"{property}: {value}") for item in update_stock(10, 30) for property, value in item.items()]
+        [print(f"{property}: {value}") for item in update_stock(84, 5) for property, value in item.items()]
+        print("\n"+"=="*50+"\n")
         # ========= Testing function: purchase_product() =========
-        # purchase_product(7, 5, 3)
-        """
-        print(purchase_product(73, 5, 1))
-        
-        
-if __name__ == "__main__":
-    main()
+        print("\n"+"=="*50+"\n")
+        print(purchase_product(73, 5, 1)) # testing with wrong product-id
+        print(purchase_product(7, 45, 1)) # testing with wrong user-id
+        print(purchase_product(7, 5, 100)) # testing with unavailable amount
+        print("\n"+"=="*50+"\n")
+    """
     
+    # Execute operations
+
+    # =========== Testing function: search() ===============   
+    print("\n"+"=="*50+"\n")
+    [print(f"{property}: {value}") for item in search("sweater") for property, value in item.items()]
+    print("\n"+"=="*50+"\n") 

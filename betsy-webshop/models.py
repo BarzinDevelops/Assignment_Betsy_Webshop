@@ -23,7 +23,7 @@ class Tag(BaseModel):
     name = CharField(unique=True)
 
 class Product(BaseModel):
-    name = CharField(unique=True)
+    name = CharField(unique=True, index=True)
     description = CharField()
     price = DecimalField(decimal_places=2)  # Using DecimalField for precise decimal storage
     quantity = IntegerField()

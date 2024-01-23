@@ -1,4 +1,4 @@
-
+# Assignment Description: Betsy Webshop
 You will design a database for a fictional web marketplace called Betsy. Betsy is a site where people can sell homemade goods. This assignment will test your skills in modelling data as well as using the peewee ORM. The requirements for this assignment can be split into 2 parts: Modelling and Querying.
 
 # Modelling
@@ -7,9 +7,9 @@ You will design a database for a fictional web marketplace called Betsy. Betsy i
 A key part of the Betsy webshop is the database. At its core are the users and the products they offer:
 
 
-* Done A user has a name, address data, and billing information.
+* A user has a name, address data, and billing information.
 * Each user must be able to own a number of products.
-* Done The products must have a name, a description, 
+* The products must have a name, a description, 
   a price per unit, and a quantity describing the amount in stock.
 * The price should be stored in a safe way; rounding errors should be 
   impossible.
@@ -17,8 +17,8 @@ A key part of the Betsy webshop is the database. At its core are the users and t
 * We want to be able to track the purchases made on the marketplace, 
   therefore a transaction model must exist
 * You can assume that only users can purchase goods
-* The transaction model must link a buyer with a purchased product and a 
-  quantity of purchased items
+* The transaction model must link a buyer with a purchased product and 
+  a quantity of purchased items
 
 As a bonus requirement, you must consider the various constraints for all fields and incorporate these constraints in the data model. 
 
@@ -41,7 +41,8 @@ In this first iteration of the database we want to be able to:
 
 ### To test if your database and queries are working we want to be able to populate the database with data quickly. 
 
-* Add a populate_test_database function that fills the database with example data that works with your queries 
+* Add a populate_test_database function that fills the database with 
+  example data that works with your queries 
 
 ## Bonus
 
@@ -49,8 +50,8 @@ In this first iteration of the database we want to be able to:
 
 
 * The search should target both the name and description fields.
-* Additionally the products should be indexed so that the time spent on 
+* Additionally the products should be indexed so that the time spent on
   querying them is minimized.
-* Finally the search should account for spelling mistakes made by users 
-  and return products even if a spelling error is present
+* Finally the search should account for spelling mistakes made by   
+  users and return products even if a spelling error is present
 
